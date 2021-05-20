@@ -105,7 +105,8 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         //failed logging in
-                        Toast.makeText(LoginActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                        progressDialog.dismiss();
+                        Toast.makeText(LoginActivity.this, "Login Failed", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -113,7 +114,6 @@ public class LoginActivity extends AppCompatActivity {
     private void makeMeOnline() {
         //after logging in make user online
         progressDialog.setMessage("Checking user...");
-
         HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("online","true");
 
@@ -132,7 +132,7 @@ public class LoginActivity extends AppCompatActivity {
                     public void onFailure(@NonNull Exception e) {
                         //failed Updating
                         progressDialog.dismiss();
-                        Toast.makeText(LoginActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, "Failed", Toast.LENGTH_SHORT).show();
                     }
                 });
     }

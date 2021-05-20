@@ -49,7 +49,7 @@ public class SplashActivity extends AppCompatActivity {
                     checkUserType();
                 }
             }
-        }, 1000);
+        }, 2000);
     }
 
     private void checkUserType() {

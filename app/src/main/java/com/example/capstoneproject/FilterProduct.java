@@ -27,7 +27,7 @@ public class FilterProduct extends Filter {
             //change to upper case to make case insensitive
             charSequence = charSequence.toString().toUpperCase();
             //store our filtered list
-            for(int i=0;i<filterList.size();i++){
+            for(int i=0; i<filterList.size(); i++){
                 //check, search by title and category
                 if(filterList.get(i).getProductTitle().toUpperCase().contains(charSequence) ||
                       filterList.get(i).getProductCategory().toUpperCase().contains(charSequence)){

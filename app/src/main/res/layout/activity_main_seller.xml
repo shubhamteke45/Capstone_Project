@@ -27,7 +27,7 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_toStartOf="@id/logoutBtn"
-            android:src="@drawable/ic_edit_white"
+            android:src="@drawable/ic_person_white"
             android:background="@null"/>
 
 
@@ -106,7 +106,24 @@
                 android:gravity="center"
                 android:text="Orders"
                 android:textColor="@color/colorWhite"/>
+            <!--Orders-->
+            <TextView
+                android:id="@+id/tapGovtTv"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Schemes"
+                android:textColor="@color/colorWhite"/>
 
+            <TextView
+                android:id="@+id/tapPaymentTv"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Payment"
+                android:textColor="@color/colorWhite"/>
 
         </LinearLayout>
 
@@ -168,6 +185,24 @@
     <!--Orders-->
     <RelativeLayout
         android:id="@+id/ordersRl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbarRl">
+
+    </RelativeLayout>
+
+    <!--GovtSchemes-->
+    <RelativeLayout
+        android:id="@+id/govtRl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbarRl">
+
+    </RelativeLayout>
+
+    <!--Payment-->
+    <RelativeLayout
+        android:id="@+id/paymentRl"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/toolbarRl">

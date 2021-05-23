@@ -35,11 +35,11 @@ import java.util.HashMap;
 
 public class MainSellerActivity extends AppCompatActivity {
 
-    private TextView nameTv, satbaraNumberTv, emailTv, tapProductsTv, tapOrdersTv, filteredProductsTv;
+    private TextView nameTv, satbaraNumberTv, emailTv, tapProductsTv, tapOrdersTv, tapGovtTv, tapPaymentTv, filteredProductsTv;
     private ImageButton logoutBtn, editProfileBtn, addProductBtn, filterProductBtn;
     private ImageView profileIv;
     private EditText searchProductEt;
-    private RelativeLayout productsRl, ordersRl;
+    private RelativeLayout productsRl, ordersRl, govtRl, paymentRl;
     private RecyclerView productsRv;
 
     private ArrayList<ModelProduct> productList;
@@ -58,6 +58,8 @@ public class MainSellerActivity extends AppCompatActivity {
         emailTv = findViewById(R.id.emailTv);
         tapProductsTv = findViewById(R.id.tapProductsTv);
         tapOrdersTv = findViewById(R.id.tapOrdersTv);
+        tapGovtTv = findViewById(R.id.tapGovtTv);
+        tapPaymentTv = findViewById(R.id.tapPaymentTv);
         logoutBtn = findViewById(R.id.logoutBtn);
         profileIv = findViewById(R.id.profileIv);
         productsRv = findViewById(R.id.productsRv);
@@ -68,6 +70,8 @@ public class MainSellerActivity extends AppCompatActivity {
         addProductBtn = findViewById(R.id.addProductBtn);
         productsRl = findViewById(R.id.productsRl);
         ordersRl = findViewById(R.id.ordersRl);
+        govtRl = findViewById(R.id.govtRl);
+        paymentRl = findViewById(R.id.paymentRl);
 
         firebaseAuth = FirebaseAuth.getInstance();
         progressDialog = new ProgressDialog(this);
@@ -141,6 +145,20 @@ public class MainSellerActivity extends AppCompatActivity {
             }
         });
 
+        tapGovtTv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showGovtUI();
+            }
+        });
+
+        tapPaymentTv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showPaymentUI();
+            }
+        });
+
         filterProductBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -178,9 +196,7 @@ public class MainSellerActivity extends AppCompatActivity {
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         //before getting reset list
                         for(DataSnapshot ds:snapshot.getChildren()){
-
                             String productCategory = ""+ds.child("productCategory").getValue();
-
                             //if selected category matches product category then add in list
                             if(selected.equals(productCategory)){
                                 ModelProduct modelProduct = ds.getValue(ModelProduct.class);
@@ -210,6 +226,7 @@ public class MainSellerActivity extends AppCompatActivity {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         //before getting reset list
+                        productList.clear();
                         for(DataSnapshot ds:snapshot.getChildren()){
                             ModelProduct modelProduct = ds.getValue(ModelProduct.class);
                             productList.add(modelProduct);
@@ -228,27 +245,84 @@ public class MainSellerActivity extends AppCompatActivity {
     }
 
     private void showProductsUI() {
-        //show products ui and hides orders ui
+        //show products ui only
         productsRl.setVisibility(View.VISIBLE);
         ordersRl.setVisibility(View.GONE);
+        govtRl.setVisibility(View.GONE);
+        paymentRl.setVisibility(View.GONE);
+
 
         tapProductsTv.setTextColor(getResources().getColor(R.color.colorBlack));
         tapProductsTv.setBackgroundResource(R.drawable.shape_rect04);
 
         tapOrdersTv.setTextColor(getResources().getColor(R.color.colorWhite));
         tapOrdersTv.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+
+        tapGovtTv.setTextColor(getResources().getColor(R.color.colorWhite));
+        tapGovtTv.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+
+        tapPaymentTv.setTextColor(getResources().getColor(R.color.colorWhite));
+        tapPaymentTv.setBackgroundColor(getResources().getColor(android.R.color.transparent));
     }
 
     private void showOrdersUI() {
-        //show orders ui and hides products ui
+        //show orders only
         productsRl.setVisibility(View.GONE);
         ordersRl.setVisibility(View.VISIBLE);
+        govtRl.setVisibility(View.GONE);
+        paymentRl.setVisibility(View.GONE);
 
         tapProductsTv.setTextColor(getResources().getColor(R.color.colorWhite));
         tapProductsTv.setBackgroundColor(getResources().getColor(android.R.color.transparent));
 
         tapOrdersTv.setTextColor(getResources().getColor(R.color.colorBlack));
         tapOrdersTv.setBackgroundResource(R.drawable.shape_rect04);
+
+        tapGovtTv.setTextColor(getResources().getColor(R.color.colorWhite));
+        tapGovtTv.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+
+        tapPaymentTv.setTextColor(getResources().getColor(R.color.colorWhite));
+        tapPaymentTv.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+    }
+
+    private void showGovtUI() {
+        //show Goverment Schemes only
+        productsRl.setVisibility(View.GONE);
+        ordersRl.setVisibility(View.GONE);
+        govtRl.setVisibility(View.VISIBLE);
+        paymentRl.setVisibility(View.GONE);
+
+        tapProductsTv.setTextColor(getResources().getColor(R.color.colorWhite));
+        tapProductsTv.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+
+        tapGovtTv.setTextColor(getResources().getColor(R.color.colorBlack));
+        tapGovtTv.setBackgroundResource(R.drawable.shape_rect04);
+
+        tapOrdersTv.setTextColor(getResources().getColor(R.color.colorWhite));
+        tapOrdersTv.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+
+        tapPaymentTv.setTextColor(getResources().getColor(R.color.colorWhite));
+        tapPaymentTv.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+    }
+
+    private void showPaymentUI() {
+        //show Payment only
+        productsRl.setVisibility(View.GONE);
+        ordersRl.setVisibility(View.GONE);
+        govtRl.setVisibility(View.GONE);
+        paymentRl.setVisibility(View.VISIBLE);
+
+        tapProductsTv.setTextColor(getResources().getColor(R.color.colorWhite));
+        tapProductsTv.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+
+        tapPaymentTv.setTextColor(getResources().getColor(R.color.colorBlack));
+        tapPaymentTv.setBackgroundResource(R.drawable.shape_rect04);
+
+        tapOrdersTv.setTextColor(getResources().getColor(R.color.colorWhite));
+        tapOrdersTv.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+
+        tapGovtTv.setTextColor(getResources().getColor(R.color.colorWhite));
+        tapGovtTv.setBackgroundColor(getResources().getColor(android.R.color.transparent));
     }
 
     private void makeMeOffline() {

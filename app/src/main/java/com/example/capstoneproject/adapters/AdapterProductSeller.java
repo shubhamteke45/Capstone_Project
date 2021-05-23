@@ -1,4 +1,4 @@
-package com.example.capstoneproject;
+package com.example.capstoneproject.adapters;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -15,9 +15,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.capstoneproject.FilterProduct;
+import com.example.capstoneproject.R;
+import com.example.capstoneproject.activities.EditProductActivity;
+import com.example.capstoneproject.models.ModelProduct;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetDialog;

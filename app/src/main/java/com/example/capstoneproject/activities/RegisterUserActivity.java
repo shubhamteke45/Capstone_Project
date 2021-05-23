@@ -1,4 +1,4 @@
-package com.example.capstoneproject;
+package com.example.capstoneproject.activities;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,40 +23,41 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.TextUtils;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.capstoneproject.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-public class ProfileEditUserActivity extends AppCompatActivity implements LocationListener {
+public class RegisterUserActivity extends AppCompatActivity implements LocationListener {
 
     private ImageButton backBtn, gpsBtn;
+    private EditText nameEt, phoneEt, countryEt, stateEt, cityEt, addressEt, emailEt, passwordEt, cPasswordEt;
+    private Button registerBtn;
+    private TextView registerSellerTv;
     private ImageView profileIv;
-    private EditText nameEt, phoneEt, countryEt, stateEt, cityEt, addressEt;
-    private Button updateBtn;
 
-    private double latitude, longitude;
+    private double latitude,longitude;
 
     //permission constants
     private static final int LOCATION_REQUEST_CODE = 100;
@@ -69,40 +70,42 @@ public class ProfileEditUserActivity extends AppCompatActivity implements Locati
     private String[] locationPermission;
     private String[] cameraPermission;
     private String[] storagePermission;
-
     //image picked uri
     private Uri image_uri;
+    private LocationManager locationManager;
 
     private FirebaseAuth firebaseAuth;
     private ProgressDialog progressDialog;
 
-    private LocationManager locationManager;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile_edit_user);
+        setContentView(R.layout.activity_register_user);
 
-        //init ui views
         backBtn = findViewById(R.id.backBtn);
-        profileIv = findViewById(R.id.profileIv);
+        gpsBtn = findViewById(R.id.gpsBtn);
+
         nameEt = findViewById(R.id.nameEt);
         phoneEt = findViewById(R.id.phoneEt);
         countryEt = findViewById(R.id.countryEt);
         stateEt = findViewById(R.id.stateEt);
         cityEt = findViewById(R.id.cityEt);
-        gpsBtn = findViewById(R.id.gpsBtn);
         addressEt = findViewById(R.id.addressEt);
-        updateBtn = findViewById(R.id.updateBtn);
+        emailEt = findViewById(R.id.emailEt);
+        passwordEt = findViewById(R.id.passwordEt);
+        cPasswordEt = findViewById(R.id.cPasswordEt);
 
-        //init permissions array
+        registerSellerTv = findViewById(R.id.registerSellerTv);
+
+        registerBtn = findViewById(R.id.registerBtn);
+
+        profileIv = findViewById(R.id.profileIv);
+
         locationPermission = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
         cameraPermission = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         storagePermission = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
         firebaseAuth = FirebaseAuth.getInstance();
-        chechkUser();
-
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Please Wait");
         progressDialog.setCanceledOnTouchOutside(false);
@@ -110,7 +113,6 @@ public class ProfileEditUserActivity extends AppCompatActivity implements Locati
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //go back previous activity
                 onBackPressed();
             }
         });
@@ -137,185 +139,199 @@ public class ProfileEditUserActivity extends AppCompatActivity implements Locati
             }
         });
 
-        updateBtn.setOnClickListener(new View.OnClickListener() {
+        registerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //begin update Profile
                 inputData();
+            }
+        });
+
+        registerSellerTv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(RegisterUserActivity.this, RegisterSellerActivity.class));
             }
         });
     }
 
-    private void chechkUser() {
-        FirebaseUser user = firebaseAuth.getCurrentUser();
-        if(user == null){
-            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-        }
-        else{
-            loadMyInfo();
-        }
-    }
-
-    private String name, phone, country, state, city, address;
-
+    private String fullName,  phoneNumber,  country, state, city, address, email, password, confirmPassword;
     private void inputData() {
         //input data
-        name = nameEt.getText().toString().trim();
-        phone = phoneEt.getText().toString().trim();
+        fullName = nameEt.getText().toString().trim();
+        phoneNumber = phoneEt.getText().toString().trim();
         country = countryEt.getText().toString().trim();
         state = stateEt.getText().toString().trim();
         city = cityEt.getText().toString().trim();
         address = addressEt.getText().toString().trim();
+        email = emailEt.getText().toString().trim();
+        password = passwordEt.getText().toString().trim();
+        confirmPassword = cPasswordEt.getText().toString().trim();
 
-        updateProfile();
+        //valid data
+        if(TextUtils.isEmpty(fullName)){
+            Toast.makeText(this, "Enter Name..", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(TextUtils.isEmpty(phoneNumber)){
+            Toast.makeText(this, "Enter Phone number..", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(password.length()<6){
+            Toast.makeText(this, "password must have at least 6 characters..", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+            Toast.makeText(this, "Invalid email pattern", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(!password.equals(confirmPassword)){
+            Toast.makeText(this, "password doesn't match", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        createAccount();
     }
 
-    private void updateProfile() {
-        progressDialog.setMessage("updating Profile");
+    private void createAccount() {
+        progressDialog.setMessage("Creating Account...");
         progressDialog.show();
 
-        if(image_uri == null){
-            //update without image
+        //create account
+        firebaseAuth.createUserWithEmailAndPassword(email, password)
+                .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+                    @Override
+                    public void onSuccess(AuthResult authResult) {
+                        //account created
+                        saveFirebaseData();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                //failed creating account
+                progressDialog.dismiss();
+                Toast.makeText(RegisterUserActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
-            //setup datato update
+    private void saveFirebaseData() {
+        progressDialog.setMessage("Saving account Info...");
+        String timestamp = ""+System.currentTimeMillis();
+
+        if(image_uri == null){
+            //save info without image
+
+            //setup data to save
             HashMap<String, Object> hashMap = new HashMap<>();
-            hashMap.put("name",""+name);
-            hashMap.put("phone",""+phone);
+            hashMap.put("uid",""+firebaseAuth.getUid());
+            hashMap.put("email",""+email);
+            hashMap.put("name",""+fullName);
+            hashMap.put("phone",""+phoneNumber);
             hashMap.put("country",""+country);
             hashMap.put("state",""+state);
             hashMap.put("city",""+city);
             hashMap.put("address",""+address);
             hashMap.put("latitude",""+latitude);
             hashMap.put("longitude",""+longitude);
+            hashMap.put("timestamp",""+timestamp);
+            hashMap.put("accountType","User");
+            hashMap.put("online","true");
+            hashMap.put("selling", "true");
 
-            //update to db
+            //save to db
             DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users");
-            ref.child(firebaseAuth.getUid()).updateChildren(hashMap)
+            ref.child(firebaseAuth.getUid()).setValue(hashMap)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            //updated
+                            //db updated
                             progressDialog.dismiss();
-                            Toast.makeText(ProfileEditUserActivity.this, "Profile Updated", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(RegisterUserActivity.this, "Account Created Successfully", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(RegisterUserActivity.this, MainUserActivity.class));
+                            finish();
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            //failed to update
+                            //failed updating data
                             progressDialog.dismiss();
-                            Toast.makeText(ProfileEditUserActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(RegisterUserActivity.this, ""+e.getMessage(), Toast.LENGTH_LONG).show();
+                            finish();
                         }
                     });
         }
         else{
-            //update with image
+            //save info with image
 
-            //upload image first
-            String filePathAndName = "profile_images/"+""+firebaseAuth.getUid();
-            //get Storage reference
+            //name and path of image
+            String filePathAndName = "profile_images/" + ""+firebaseAuth.getUid();
+            //upload Image
             StorageReference storageReference = FirebaseStorage.getInstance().getReference(filePathAndName);
             storageReference.putFile(image_uri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            //image uploaded, get url of uploaded image
+                            //get url of upload image
                             Task<Uri> uriTask = taskSnapshot.getStorage().getDownloadUrl();
-                            while (!uriTask.isSuccessful());
+                            while(!uriTask.isSuccessful());
                             Uri downloadImageUri = uriTask.getResult();
 
-                            if(uriTask.isSuccessful()){
-                                //image uri received, now update db
+                                if(uriTask.isSuccessful()){
+                                    HashMap<String, Object> hashMap = new HashMap<>();
+                                    hashMap.put("uid",""+firebaseAuth.getUid());
+                                    hashMap.put("email",""+email);
+                                    hashMap.put("name",""+fullName);
+                                    hashMap.put("phone",""+phoneNumber);
+                                    hashMap.put("country",""+country);
+                                    hashMap.put("state",""+state);
+                                    hashMap.put("city",""+city);
+                                    hashMap.put("address",""+address);
+                                    hashMap.put("latitude",""+latitude);
+                                    hashMap.put("longitude",""+longitude);
+                                    hashMap.put("timestamp",""+timestamp);
+                                    hashMap.put("accountType","User");
+                                    hashMap.put("online","true");
+                                    hashMap.put("selling", "true");
+                                    hashMap.put("profileImage",""+downloadImageUri);
 
-                                //setup data update
-                                HashMap<String, Object> hashMap = new HashMap<>();
-                                hashMap.put("name",""+name);
-                                hashMap.put("phone",""+phone);
-                                hashMap.put("country",""+country);
-                                hashMap.put("state",""+state);
-                                hashMap.put("city",""+city);
-                                hashMap.put("address",""+address);
-                                hashMap.put("latitude",""+latitude);
-                                hashMap.put("longitude",""+longitude);
-                                hashMap.put("profileImage",""+downloadImageUri);
-
-                                //update to db
-                                DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users");
-                                ref.child(firebaseAuth.getUid()).updateChildren(hashMap)
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                //updated
-                                                progressDialog.dismiss();
-                                                Toast.makeText(ProfileEditUserActivity.this, "Profile Updated", Toast.LENGTH_SHORT).show();
-                                            }
-                                        })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                //failed to update
-                                                progressDialog.dismiss();
-                                                Toast.makeText(ProfileEditUserActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                            }
+                                    //save to db
+                                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users");
+                                    ref.child(firebaseAuth.getUid()).setValue(hashMap)
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    //db updated
+                                                    progressDialog.dismiss();
+                                                    Toast.makeText(RegisterUserActivity.this, "Account Created Successfully", Toast.LENGTH_SHORT).show();
+                                                    startActivity(new Intent(RegisterUserActivity.this, MainUserActivity.class));
+                                                    finish();
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e){
+                                                    //failed updating data
+                                                    progressDialog.dismiss();
+                                                    Toast.makeText(RegisterUserActivity.this, ""+e.getMessage(), Toast.LENGTH_LONG).show();
+                                                    finish();
+                                                }
+                                            });
+                                }
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             progressDialog.dismiss();
-                            Toast.makeText(ProfileEditUserActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(RegisterUserActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
         }
-
-    }
-
-    private void loadMyInfo() {
-        //load user info and set to views
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users");
-        ref.orderByChild("uid").equalTo(firebaseAuth.getUid())
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        for(DataSnapshot ds:snapshot.getChildren()){
-                            String accountType = ""+ds.child("accountType").getValue();
-                            String address = ""+ds.child("address").getValue();
-                            String city = ""+ds.child("city").getValue();
-                            String state = ""+ds.child("state").getValue();
-                            String country = ""+ds.child("country").getValue();
-                            String email = ""+ds.child("email").getValue();
-                            String name = ""+ds.child("name").getValue();
-                            String phone = ""+ds.child("phone").getValue();
-                            latitude = Double.parseDouble(""+ds.child("latitude").getValue());
-                            longitude = Double.parseDouble(""+ds.child("longitude").getValue());
-                            String timestamp = ""+ds.child("timestamp").getValue();
-                            String profileImage = ""+ds.child("profileImage").getValue();
-                            String uid = ""+ds.child("uid").getValue();
-
-                            nameEt.setText(name);
-                            phoneEt.setText(phone);
-                            countryEt.setText(country);
-                            stateEt.setText(state);
-                            cityEt.setText(city);
-                            addressEt.setText(address);
-
-                            try{
-                                Picasso.get().load(profileImage).placeholder(R.drawable.ic_person_gray).into(profileIv);
-                            }
-                            catch (Exception e){
-                                profileIv.setImageResource(R.drawable.ic_person_gray);
-                            }
-
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
     }
 
     private void showImagePickDialog() {
@@ -369,6 +385,52 @@ public class ProfileEditUserActivity extends AppCompatActivity implements Locati
         startActivityForResult(intent, IMAGE_PICK_CAMERA_CODE);
     }
 
+    @SuppressLint("MissingPermission")
+    private void detectLocation() {
+        try{
+            Toast.makeText(this, "Please Wait..", Toast.LENGTH_SHORT).show();
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+    private void findAddress() {
+        // find address, country, state, city
+        Geocoder geocoder;
+        List<Address> addresses;
+        geocoder = new Geocoder(this, Locale.getDefault());
+
+        try{
+            addresses = geocoder.getFromLocation(latitude, longitude, 1);
+
+            String address = addresses.get(0).getAddressLine(0);//complete Address
+            String city = addresses.get(0).getLocality();
+            String state = addresses.get(0).getAdminArea();
+            String country = addresses.get(0).getCountryName();
+
+            //set address
+            countryEt.setText(country);
+            stateEt.setText(state);
+            cityEt.setText(city);
+            addressEt.setText(address);
+        }catch (Exception e){
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private boolean checkLocationPermission(){
+        boolean result = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) == (PackageManager.PERMISSION_GRANTED);
+        return result;
+    }
+
+    private void requestLocationPermission(){
+        ActivityCompat.requestPermissions(this, locationPermission, LOCATION_REQUEST_CODE);
+    }
+
     private boolean checkCameraPermission(){
         boolean result = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.CAMERA) ==
@@ -397,27 +459,6 @@ public class ProfileEditUserActivity extends AppCompatActivity implements Locati
         ActivityCompat.requestPermissions(this, storagePermission, STORAGE_REQUEST_CODE);
     }
 
-    private boolean checkLocationPermission(){
-        boolean result = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) == (PackageManager.PERMISSION_GRANTED);
-        return result;
-    }
-
-    @SuppressLint("MissingPermission")
-    private void detectLocation() {
-        try{
-            Toast.makeText(this, "Please Wait..", Toast.LENGTH_SHORT).show();
-            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    private void requestLocationPermission(){
-        ActivityCompat.requestPermissions(this, locationPermission, LOCATION_REQUEST_CODE);
-    }
-
     @Override
     public void onLocationChanged(@NonNull Location location) {
         //location detected
@@ -425,30 +466,6 @@ public class ProfileEditUserActivity extends AppCompatActivity implements Locati
         longitude = location.getLongitude();
 
         findAddress();
-    }
-
-    private void findAddress() {
-        // find address, country, state, city
-        Geocoder geocoder;
-        List<Address> addresses;
-        geocoder = new Geocoder(this, Locale.getDefault());
-
-        try{
-            addresses = geocoder.getFromLocation(latitude, longitude, 1);
-
-            String address = addresses.get(0).getAddressLine(0);//complete Address
-            String city = addresses.get(0).getLocality();
-            String state = addresses.get(0).getAdminArea();
-            String country = addresses.get(0).getCountryName();
-
-            //set address
-            countryEt.setText(country);
-            stateEt.setText(state);
-            cityEt.setText(city);
-            addressEt.setText(address);
-        }catch (Exception e){
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
     }
 
     @Override
@@ -474,6 +491,7 @@ public class ProfileEditUserActivity extends AppCompatActivity implements Locati
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
         switch (requestCode){
             case LOCATION_REQUEST_CODE:{
                 if(grantResults.length>0){

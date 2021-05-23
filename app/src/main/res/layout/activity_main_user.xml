@@ -4,25 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainUserActivity">
+    tools:context=".activities.MainUserActivity">
 
     <!--Toolbar-->
     <RelativeLayout
+        android:id="@+id/toolbarRl"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="wrap_content"
         android:padding="10dp"
         android:background="@drawable/shape_rect01">
-
-
-        <TextView
-            android:id="@+id/nameTv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:text="Name"
-            android:textStyle="bold"
-            android:textSize="20sp"
-            android:textColor="@color/colorWhite"/>
 
         <ImageButton
             android:id="@+id/logoutBtn"
@@ -37,8 +27,103 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_toStartOf="@id/logoutBtn"
-            android:src="@drawable/ic_edit_white"
+            android:src="@drawable/ic_person_white"
             android:background="@null"/>
+
+
+        <com.blogspot.atifsoftwares.circularimageview.CircularImageView
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:id="@+id/profileIv"
+            android:layout_marginEnd="10dp"
+            app:c_border="true"
+            app:c_border_color="@color/colorWhite"
+            android:src="@drawable/ic_person_gray"/>
+
+        <TextView
+            android:id="@+id/nameTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Name"
+            android:layout_toEndOf="@id/profileIv"
+            android:textStyle="bold"
+            android:textColor="@color/colorWhite"/>
+
+        <TextView
+            android:id="@+id/emailTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Email"
+            android:layout_toEndOf="@id/profileIv"
+            android:textStyle="bold"
+            android:textColor="@color/colorWhite"
+            android:layout_below="@id/nameTv"/>
+
+        <TextView
+            android:id="@+id/phoneTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Phone"
+            android:layout_toEndOf="@id/profileIv"
+            android:textStyle="bold"
+            android:textColor="@color/colorWhite"
+            android:layout_below="@id/emailTv"/>
+
+        <!--tabs: products, orders-->
+        <LinearLayout
+            android:layout_below="@id/profileIv"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@drawable/shape_rect03"
+            android:orientation="horizontal"
+            android:padding="5dp">
+
+            <!--Products-->
+            <TextView
+                android:id="@+id/tapFarmersTv"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:background="@drawable/shape_rect04"
+                android:text="Farmers"
+                android:textColor="@color/colorBlack"/>
+            <!--Orders-->
+            <TextView
+                android:id="@+id/tapOrdersTv"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Orders"
+                android:textColor="@color/colorWhite"/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <!--Shops UI-->
+    <RelativeLayout
+        android:id="@+id/shopsRl"
+        android:layout_below="@id/toolbarRl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/farmersRv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/row_farmer"/>
+
+    </RelativeLayout>
+
+    <!--Orders UI-->
+    <RelativeLayout
+        android:id="@+id/ordersRl"
+        android:layout_below="@id/toolbarRl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
     </RelativeLayout>
 

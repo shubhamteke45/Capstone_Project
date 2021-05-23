@@ -1,4 +1,4 @@
-package com.example.capstoneproject;
+package com.example.capstoneproject.activities;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,9 +30,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.capstoneproject.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -48,14 +48,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-public class RegisterUserActivity extends AppCompatActivity implements LocationListener {
+public class RegisterSellerActivity extends AppCompatActivity implements LocationListener {
 
     private ImageButton backBtn, gpsBtn;
-    private EditText nameEt, phoneEt, countryEt, stateEt, cityEt, addressEt, emailEt, passwordEt, cPasswordEt;
+    private EditText nameEt, phoneEt, countryEt, stateEt, cityEt, addressEt, emailEt, passwordEt, cPasswordEt, satbaraEt, deliveryFeeEt;
     private Button registerBtn;
-    private TextView registerSellerTv;
     private ImageView profileIv;
-
     private double latitude, longitude;
 
     //permission constants
@@ -79,7 +77,7 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register_user);
+        setContentView(R.layout.activity_register_seller);
 
         backBtn = findViewById(R.id.backBtn);
         gpsBtn = findViewById(R.id.gpsBtn);
@@ -93,13 +91,12 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
         emailEt = findViewById(R.id.emailEt);
         passwordEt = findViewById(R.id.passwordEt);
         cPasswordEt = findViewById(R.id.cPasswordEt);
-
-        registerSellerTv = findViewById(R.id.registerSellerTv);
-
         registerBtn = findViewById(R.id.registerBtn);
-
+        satbaraEt = findViewById(R.id.satbaraEt);
+        deliveryFeeEt = findViewById(R.id.deliveryFeeEt);
         profileIv = findViewById(R.id.profileIv);
 
+        //init permissions array
         locationPermission = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
         cameraPermission = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         storagePermission = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
@@ -141,23 +138,19 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
         registerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //register user
                 inputData();
-            }
-        });
-
-        registerSellerTv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(RegisterUserActivity.this, RegisterSellerActivity.class));
             }
         });
     }
 
-    private String fullName,  phoneNumber,  country, state, city, address, email, password, confirmPassword;
+    private String fullName, satbaraNumber, phoneNumber, deliveryFee, country, state, city, address, email, password, confirmPassword;
     private void inputData() {
         //input data
         fullName = nameEt.getText().toString().trim();
+        satbaraNumber = satbaraEt.getText().toString().trim();
         phoneNumber = phoneEt.getText().toString().trim();
+        deliveryFee = deliveryFeeEt.getText().toString().trim();
         country = countryEt.getText().toString().trim();
         state = stateEt.getText().toString().trim();
         city = cityEt.getText().toString().trim();
@@ -172,8 +165,18 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
             return;
         }
 
+        if(TextUtils.isEmpty(satbaraNumber)){
+            Toast.makeText(this, "Enter Satbara number..", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if(TextUtils.isEmpty(phoneNumber)){
             Toast.makeText(this, "Enter Phone number..", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(TextUtils.isEmpty(deliveryFee)){
+            Toast.makeText(this, "Enter delivery fee..", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -212,7 +215,7 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
             public void onFailure(@NonNull Exception e) {
                 //failed creating account
                 progressDialog.dismiss();
-                Toast.makeText(RegisterUserActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(RegisterSellerActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -229,7 +232,9 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
             hashMap.put("uid",""+firebaseAuth.getUid());
             hashMap.put("email",""+email);
             hashMap.put("name",""+fullName);
+            hashMap.put("satbaraNumber",""+satbaraNumber);
             hashMap.put("phone",""+phoneNumber);
+            hashMap.put("deliveryFee",""+deliveryFee);
             hashMap.put("country",""+country);
             hashMap.put("state",""+state);
             hashMap.put("city",""+city);
@@ -237,7 +242,7 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
             hashMap.put("latitude",""+latitude);
             hashMap.put("longitude",""+longitude);
             hashMap.put("timestamp",""+timestamp);
-            hashMap.put("accountType","User");
+            hashMap.put("accountType","Seller");
             hashMap.put("online","true");
             hashMap.put("selling", "true");
 
@@ -249,8 +254,7 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
                         public void onSuccess(Void aVoid) {
                             //db updated
                             progressDialog.dismiss();
-                            Toast.makeText(RegisterUserActivity.this, "Account Created Successfully", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(RegisterUserActivity.this, MainUserActivity.class));
+                            startActivity(new Intent(RegisterSellerActivity.this, MainSellerActivity.class));
                             finish();
                         }
                     })
@@ -259,7 +263,7 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
                         public void onFailure(@NonNull Exception e) {
                             //failed updating data
                             progressDialog.dismiss();
-                            startActivity(new Intent(RegisterUserActivity.this, MainUserActivity.class));
+                            startActivity(new Intent(RegisterSellerActivity.this, MainSellerActivity.class));
                             finish();
                         }
                     });
@@ -285,7 +289,9 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
                                     hashMap.put("uid",""+firebaseAuth.getUid());
                                     hashMap.put("email",""+email);
                                     hashMap.put("name",""+fullName);
+                                    hashMap.put("satbaraNumber",""+satbaraNumber);
                                     hashMap.put("phone",""+phoneNumber);
+                                    hashMap.put("deliveryFee",""+deliveryFee);
                                     hashMap.put("country",""+country);
                                     hashMap.put("state",""+state);
                                     hashMap.put("city",""+city);
@@ -293,7 +299,7 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
                                     hashMap.put("latitude",""+latitude);
                                     hashMap.put("longitude",""+longitude);
                                     hashMap.put("timestamp",""+timestamp);
-                                    hashMap.put("accountType","User");
+                                    hashMap.put("accountType","Seller");
                                     hashMap.put("online","true");
                                     hashMap.put("selling", "true");
                                     hashMap.put("profileImage",""+downloadImageUri);
@@ -306,8 +312,7 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
                                                 public void onSuccess(Void aVoid) {
                                                     //db updated
                                                     progressDialog.dismiss();
-                                                    Toast.makeText(RegisterUserActivity.this, "Account Created Successfully", Toast.LENGTH_SHORT).show();
-                                                    startActivity(new Intent(RegisterUserActivity.this, MainUserActivity.class));
+                                                    startActivity(new Intent(RegisterSellerActivity.this, MainSellerActivity.class));
                                                     finish();
                                                 }
                                             })
@@ -316,19 +321,18 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
                                                 public void onFailure(@NonNull Exception e) {
                                                     //failed updating data
                                                     progressDialog.dismiss();
-                                                    startActivity(new Intent(RegisterUserActivity.this, MainUserActivity.class));
+                                                    startActivity(new Intent(RegisterSellerActivity.this, MainSellerActivity.class));
                                                     finish();
                                                 }
                                             });
                                 }
-
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             progressDialog.dismiss();
-                            Toast.makeText(RegisterUserActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(RegisterSellerActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
         }
@@ -491,7 +495,6 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-
         switch (requestCode){
             case LOCATION_REQUEST_CODE:{
                 if(grantResults.length>0){

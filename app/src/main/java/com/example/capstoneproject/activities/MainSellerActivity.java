@@ -1,4 +1,4 @@
-package com.example.capstoneproject;
+package com.example.capstoneproject.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +19,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.capstoneproject.adapters.AdapterProductSeller;
+import com.example.capstoneproject.Constants;
+import com.example.capstoneproject.models.ModelProduct;
+import com.example.capstoneproject.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;

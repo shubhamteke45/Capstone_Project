@@ -1,8 +1,9 @@
 package com.example.capstoneproject;
 
-import android.widget.Adapter;
 import android.widget.Filter;
-import android.widget.Filterable;
+
+import com.example.capstoneproject.adapters.AdapterProductSeller;
+import com.example.capstoneproject.models.ModelProduct;
 
 import java.util.ArrayList;
 

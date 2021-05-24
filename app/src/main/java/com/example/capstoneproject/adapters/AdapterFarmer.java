@@ -1,6 +1,7 @@
 package com.example.capstoneproject.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.capstoneproject.R;
+import com.example.capstoneproject.activities.FarmerDetailsActivity;
 import com.example.capstoneproject.models.ModelFarmer;
 import com.google.firebase.database.annotations.NotNull;
 import com.squareup.picasso.Picasso;
@@ -82,6 +84,16 @@ public class AdapterFarmer extends RecyclerView.Adapter<AdapterFarmer.HolderFarm
         catch (Exception e){
             holder.farmerIv.setImageResource(R.drawable.ic_person_gray);
         }
+
+        //handle click listener ,show farmer list
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context, FarmerDetailsActivity.class);
+                intent.putExtra("farmerUid", uid);
+                context.startActivity(intent);
+            }
+        });
     }
 
     @Override

@@ -93,6 +93,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_call_white"
+                    android:layout_marginRight="10dp"
                     android:background="@null"/>
 
                 <ImageButton
@@ -100,6 +101,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_map_white"
+                    android:layout_marginLeft="10dp"
                     android:background="@null"/>
 
             </LinearLayout>
@@ -189,7 +191,7 @@
             android:layout_height="match_parent"
             android:layout_below="@id/filteredProductsTv"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/row_product_seller"/>
+            tools:listitem="@layout/row_product_user"/>
 
     </RelativeLayout>
 

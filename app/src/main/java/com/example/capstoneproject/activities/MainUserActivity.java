@@ -16,7 +16,9 @@ import android.widget.Toast;
 
 import com.example.capstoneproject.R;
 import com.example.capstoneproject.adapters.AdapterFarmer;
+import com.example.capstoneproject.adapters.AdapterOrderUser;
 import com.example.capstoneproject.models.ModelFarmer;
+import com.example.capstoneproject.models.ModelOrderUser;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -37,12 +39,15 @@ public class MainUserActivity extends AppCompatActivity {
     private ImageButton logoutBtn, editProfileBtn;
     private ImageView profileIv;
     private RelativeLayout farmerRl,  ordersRl;
-    private RecyclerView farmersRv;
+    private RecyclerView farmersRv, orderRv;
     private ArrayList<ModelFarmer> farmerList;
     private AdapterFarmer adapterFarmer;
 
     private FirebaseAuth firebaseAuth;
     private ProgressDialog progressDialog;
+
+    private ArrayList<ModelOrderUser> orderList;
+    private AdapterOrderUser adapterOrderUser;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +64,7 @@ public class MainUserActivity extends AppCompatActivity {
         farmerRl = findViewById(R.id.shopsRl);
         ordersRl = findViewById(R.id.ordersRl);
         farmersRv = findViewById(R.id.farmersRv);
+        orderRv = findViewById(R.id.orderRv);
 
         firebaseAuth = FirebaseAuth.getInstance();
         progressDialog = new ProgressDialog(this);
@@ -66,7 +72,7 @@ public class MainUserActivity extends AppCompatActivity {
         progressDialog.setCanceledOnTouchOutside(false);
         checkUser();
 
-        //at starts show shops ui
+        //at starts show Farmers ui
         showFarmersUI();
 
         logoutBtn.setOnClickListener(new View.OnClickListener() {
@@ -129,7 +135,7 @@ public class MainUserActivity extends AppCompatActivity {
 
     }
 
-    private void makeMeOffline() {
+    private void makeMeOffline(){
         //after logging in make user online
         progressDialog.setMessage("Logging out...");
 
@@ -192,6 +198,7 @@ public class MainUserActivity extends AppCompatActivity {
                             }
 
                             loadFarmers();
+                            loadOrders();
                         }
                     }
 
@@ -200,6 +207,51 @@ public class MainUserActivity extends AppCompatActivity {
 
                     }
                 });
+    }
+
+    private void loadOrders() {
+
+        orderList = new ArrayList<>();
+
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users");
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                orderList.clear();
+                for(DataSnapshot ds:snapshot.getChildren()){
+                    String uid = ""+ds.getRef().getKey();
+
+                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users").child(uid).child("Orders");
+                    ref.orderByChild("orderBy").equalTo(firebaseAuth.getUid())
+                            .addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    if(snapshot.exists()){
+                                        for(DataSnapshot ds:snapshot.getChildren()){
+                                            ModelOrderUser modelOrderUser = ds.getValue(ModelOrderUser.class);
+                                            orderList.add(modelOrderUser);
+                                        }
+                                        //set up adapter
+                                        adapterOrderUser = new AdapterOrderUser(MainUserActivity.this, orderList);
+
+                                        //set to recyclerview
+                                        orderRv.setAdapter(adapterOrderUser);
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+
+                                }
+                            });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     private void loadFarmers() {

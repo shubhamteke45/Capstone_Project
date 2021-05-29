@@ -2,14 +2,14 @@ package com.example.capstoneproject.models;
 
 public class ModelCartItem {
 
-    String id, pTd, name, price, cost, quantity;
+    String id, pId, name, price, cost, quantity;
 
     public ModelCartItem() {
     }
 
-    public ModelCartItem(String id, String pTd, String name, String price, String cost, String quantity) {
+    public ModelCartItem(String id, String pId, String name, String price, String cost, String quantity) {
         this.id = id;
-        this.pTd = pTd;
+        this.pId = pId;
         this.name = name;
         this.price = price;
         this.cost = cost;
@@ -24,12 +24,12 @@ public class ModelCartItem {
         this.id = id;
     }
 
-    public String getpTd() {
-        return pTd;
+    public String getpId() {
+        return pId;
     }
 
-    public void setpTd(String pTd) {
-        this.pTd = pTd;
+    public void setpId(String pId) {
+        this.pId = pId;
     }
 
     public String getName() {

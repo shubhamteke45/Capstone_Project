@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -29,6 +30,8 @@ import com.example.capstoneproject.adapters.AdapterCartItem;
 import com.example.capstoneproject.adapters.AdapterProductUser;
 import com.example.capstoneproject.models.ModelCartItem;
 import com.example.capstoneproject.models.ModelProduct;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -38,6 +41,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import p32929.androideasysql_library.Column;
 import p32929.androideasysql_library.EasyDB;
@@ -51,7 +55,10 @@ public class FarmerDetailsActivity extends AppCompatActivity {
     private EditText searchProductEt;
     private RecyclerView productsRv;
 
-    private String farmerUid;
+    //progress Dialog
+    private ProgressDialog progressDialog;
+
+    private String farmerUid, myPhone;
     private String myLatitude, myLongitude;
     private String farmerName, farmerEmail, farmerPhone, farmerAddress, farmerLatitude, farmerLongitude;
     public String deliveryFee;
@@ -83,6 +90,10 @@ public class FarmerDetailsActivity extends AppCompatActivity {
         searchProductEt = findViewById(R.id.searchProductEt);
         productsRl = findViewById(R.id.productsRl);
         productsRv = findViewById(R.id.productsRv);
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("Please Wait");
+        progressDialog.setCanceledOnTouchOutside(false);
 
         farmerUid = getIntent().getStringExtra("farmerUid");
         firebaseAuth = FirebaseAuth.getInstance();
@@ -241,18 +252,103 @@ public class FarmerDetailsActivity extends AppCompatActivity {
         cartItemsRv.setAdapter(adapterCartItem);
 
         dFeeTv.setText("₹"+deliveryFee);
-        sTotalTv.setText("₹"+String.format("%2f", allTotalPrice));
+        sTotalTv.setText("₹"+String.format("%.2f", allTotalPrice));
         allTotalPriceTv.setText("₹"+(allTotalPrice + Double.parseDouble(deliveryFee.replaceAll("₹", ""))));
 
+        //show dialog
         AlertDialog dialog = builder.create();
         dialog.show();
 
+        //reset total price on dialog dismiss
         dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialogInterface) {
                 allTotalPrice = 0.00;
             }
         });
+
+        //place order
+        checkoutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //first validate delivery address
+                if(myLatitude.equals("") || myLongitude.equals("null") || myLongitude.equals("") || myLatitude.equals("null")){
+                    //user didn't entered address in profile
+                    Toast.makeText(FarmerDetailsActivity.this, "Please enter your address in your profile before placing any order...", Toast.LENGTH_SHORT).show();
+                    return; //don't proceed further
+                }
+
+                if(myPhone.equals("") || myPhone.equals("")){
+                    //user didn't entered phone number in profile
+                    Toast.makeText(FarmerDetailsActivity.this, "Please enter your Phone number in your profile before placing any order...", Toast.LENGTH_SHORT).show();
+                    return; //don't proceed further
+                }
+
+                if(cartItemList.size() == 0){
+                    Toast.makeText(FarmerDetailsActivity.this, "No item in cart", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                submitOrder();
+            }
+        });
+    }
+
+    private void submitOrder() {
+        //show progress dialog
+        progressDialog.setMessage("Placing Order...");
+        progressDialog.show();
+
+        //for order id and order item
+        String timeStamp = ""+System.currentTimeMillis();
+
+        String cost = allTotalPriceTv.getText().toString().trim().replace("₹","");
+
+        //setip order data
+        HashMap<String, String> hashMap = new HashMap<>();
+
+        hashMap.put("orderId", ""+timeStamp);
+        hashMap.put("orderTime", ""+timeStamp);
+        hashMap.put("orderStatus", "In Progress");
+        hashMap.put("orderCost", ""+cost);
+        hashMap.put("orderBy", ""+firebaseAuth.getUid());
+        hashMap.put("orderTo", ""+farmerUid);
+
+        //add to db
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users").child(farmerUid).child("Orders");
+        ref.child(timeStamp).setValue(hashMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        //order info added now add order items
+                        for(int i=0;i<cartItemList.size();i++){
+                            String pId = cartItemList.get(i).getpId();
+                            String id = cartItemList.get(i).getId();
+                            String cost = cartItemList.get(i).getCost();
+                            String name = cartItemList.get(i).getName();
+                            String price = cartItemList.get(i).getPrice();
+                            String quantity = cartItemList.get(i).getQuantity();
+
+                            HashMap<String, String> hashMap1 = new HashMap<>();
+                            hashMap1.put("pId", pId);
+                            hashMap1.put("name", name);
+                            hashMap1.put("cost", cost);
+                            hashMap1.put("price", price);
+                            hashMap1.put("quantity", quantity);
+
+                            ref.child(timeStamp).child("Items").child(pId).setValue(hashMap1);
+                        }
+                        progressDialog.dismiss();
+                        Toast.makeText(FarmerDetailsActivity.this, "Order Placed Successfully", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        progressDialog.dismiss();
+                        Toast.makeText(FarmerDetailsActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void openMap() {
@@ -277,7 +373,7 @@ public class FarmerDetailsActivity extends AppCompatActivity {
                         for(DataSnapshot ds: snapshot.getChildren()){
                             String name = ""+ds.child("name").getValue();
                             String email = ""+ds.child("email").getValue();
-                            String phone = ""+ds.child("phone").getValue();
+                            myPhone = ""+ds.child("phone").getValue();
                             String profileImage = ""+ds.child("profileImage").getValue();
                             String accountType = ""+ds.child("accountType").getValue();
                             myLatitude = ""+ds.child("latitude").getValue();

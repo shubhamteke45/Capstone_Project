@@ -41,7 +41,7 @@ public class AdapterCartItem extends RecyclerView.Adapter<AdapterCartItem.Holder
     public void onBindViewHolder(@NonNull HolderCartItem holder, int position) {
         ModelCartItem modelCartItem = cartItems.get(position);
         String id = modelCartItem.getId();
-        String getpId = modelCartItem.getpTd();
+        String getpId = modelCartItem.getpId();
         String title = modelCartItem.getName();
         String cost = modelCartItem.getCost();
         String price = modelCartItem.getPrice();
@@ -49,8 +49,8 @@ public class AdapterCartItem extends RecyclerView.Adapter<AdapterCartItem.Holder
 
         holder.itemTitleTv.setText(""+title);
         holder.itemPriceTv.setText(""+cost);
-        holder.itemQuantityTv.setText(""+quantity+")");
-        holder.itemPriceEachTv.setText(""+price+"/KG(");
+        holder.itemQuantityTv.setText(""+"["+quantity+"]");
+        holder.itemPriceEachTv.setText(""+price);
 
         //handle remove click listner
         holder.itemRemoveTv.setOnClickListener(new View.OnClickListener() {

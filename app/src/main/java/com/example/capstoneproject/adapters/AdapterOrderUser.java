@@ -56,7 +56,7 @@ public class AdapterOrderUser extends RecyclerView.Adapter<AdapterOrderUser.Hold
         //set data
         holder.amountTv.setText("Amount: ₹" + orderCost);
         holder.statusTv.setText(orderStatus);
-        holder.orderIdTv.setText("OrderId:"+orderId);
+        holder.orderIdTv.setText("OrderId:"+orderId) ;
 
         if (orderStatus.equals("In Progress")) {
             holder.statusTv.setTextColor(context.getResources().getColor(R.color.colorYellow));

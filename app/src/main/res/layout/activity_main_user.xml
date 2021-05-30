@@ -27,8 +27,8 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_toStartOf="@id/logoutBtn"
-            android:src="@drawable/ic_person_white"
-            android:background="@null"/>
+            android:background="@null"
+            android:src="@drawable/ic_person_white" />
 
 
         <com.blogspot.atifsoftwares.circularimageview.CircularImageView

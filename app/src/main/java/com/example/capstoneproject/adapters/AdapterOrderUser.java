@@ -1,6 +1,7 @@
 package com.example.capstoneproject.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.capstoneproject.R;
+import com.example.capstoneproject.activities.OrderDetailsUserAcitivty;
 import com.example.capstoneproject.models.ModelOrderUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -72,6 +74,17 @@ public class AdapterOrderUser extends RecyclerView.Adapter<AdapterOrderUser.Hold
         String formatedDate = DateFormat.format("dd/MM/yyyy", calendar).toString();
 
         holder.dateTv.setText(formatedDate);
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //open order details, we need to keys there, orderId, orderTo
+                Intent intent = new Intent(context, OrderDetailsUserAcitivty.class);
+                intent.putExtra("orderTo", orderTo);
+                intent.putExtra("orderId", orderId);
+                context.startActivity(intent);//now get this values through intent on OrderDetailsUserActivity
+            }
+        });
 
     }
 

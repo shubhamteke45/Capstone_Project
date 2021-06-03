@@ -49,7 +49,7 @@ import p32929.androideasysql_library.EasyDB;
 public class FarmerDetailsActivity extends AppCompatActivity {
 
     private ImageView farmerIv;
-    private TextView farmerNameTv, phoneTv, emailTv, sellingTv, deliveryFeeTv, addressTv, filteredProductsTv;
+    private TextView farmerNameTv, phoneTv, emailTv, sellingTv, deliveryFeeTv, addressTv, filteredProductsTv, cartCountTv;
     private ImageButton callBtn, mapBtn, cartBtn, backBtn, filterProductBtn;
     private RelativeLayout toolbarRl, productsRl;
     private EditText searchProductEt;
@@ -68,6 +68,8 @@ public class FarmerDetailsActivity extends AppCompatActivity {
     private ArrayList<ModelProduct> productList;
     private ArrayList<ModelCartItem> cartItemList;
     private AdapterCartItem adapterCartItem;
+
+    private EasyDB easyDB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +92,7 @@ public class FarmerDetailsActivity extends AppCompatActivity {
         searchProductEt = findViewById(R.id.searchProductEt);
         productsRl = findViewById(R.id.productsRl);
         productsRv = findViewById(R.id.productsRv);
+        cartCountTv = findViewById(R.id.cartCountTv);
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Please Wait");
@@ -101,7 +104,21 @@ public class FarmerDetailsActivity extends AppCompatActivity {
         loadFarmerDetails();
         loadFarmerProducts();
 
-        deleteCartData();
+        //declare it to class level and init onCreate
+        easyDB = EasyDB.init(this, "ITEMS_DB")
+                .setTableName("ITEMS_TABLE")
+                .addColumn(new Column("Item_Id", new String[]{"text", "unique"}))
+                .addColumn(new Column("Item_PID", new String[]{"text", "not null"}))
+                .addColumn(new Column("Item_Name", new String[]{"text", "not null"}))
+                .addColumn(new Column("Item_Price_Each", new String[]{"text", "not null"}))
+                .addColumn(new Column("Item_Price", new String[]{"text", "not null"}))
+                .addColumn(new Column("Item_Quantity", new String[]{"text", "not null"}))
+                .doneTableColumn();
+
+        //Each farmer have its own product and orders so if user add items  to cart and go back and open cart in different farmer then cart should be different
+        //so delete cart data whenever user open this activity
+        deleteCartData();//before it
+        cartCount();
 
         //search
         searchProductEt.addTextChangedListener(new TextWatcher() {
@@ -180,18 +197,23 @@ public class FarmerDetailsActivity extends AppCompatActivity {
     }
 
     private void deleteCartData() {
-
-        EasyDB easyDB = EasyDB.init(this, "ITEMS_DB")
-                .setTableName("ITEMS_TABLE")
-                .addColumn(new Column("Item_Id", new String[]{"text", "unique"}))
-                .addColumn(new Column("Item_PID", new String[]{"text", "not null"}))
-                .addColumn(new Column("Item_Name", new String[]{"text", "not null"}))
-                .addColumn(new Column("Item_Price_Each", new String[]{"text", "not null"}))
-                .addColumn(new Column("Item_Price", new String[]{"text", "not null"}))
-                .addColumn(new Column("Item_Quantity", new String[]{"text", "not null"}))
-                .doneTableColumn();
-
         easyDB.deleteAllDataFromTable();
+    }
+
+    public void cartCount(){
+        //to access it in adapter
+        //get cart count
+
+        int count = easyDB.getAllData().getCount();
+        if(count<=0){
+            //no item in cart, hide cart count text view
+            cartCountTv.setVisibility(View.GONE);
+        }
+        else{
+            //have items in cart, show cart count text view and set count
+            cartCountTv.setVisibility(View.VISIBLE);
+            cartCountTv.setText(""+count);//concatenate with string because we cant assign integer to text view
+        }
     }
 
     public double allTotalPrice = 0.00;
@@ -313,9 +335,11 @@ public class FarmerDetailsActivity extends AppCompatActivity {
         hashMap.put("orderCost", ""+cost);
         hashMap.put("orderBy", ""+firebaseAuth.getUid());
         hashMap.put("orderTo", ""+farmerUid);
+        hashMap.put("latitude", ""+myLatitude);
+        hashMap.put("longitude", ""+myLongitude);
 
         //add to db
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users").child(farmerUid).child("Orders");
+        final DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users").child(farmerUid).child("Orders");
         ref.child(timeStamp).setValue(hashMap)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -340,6 +364,12 @@ public class FarmerDetailsActivity extends AppCompatActivity {
                         }
                         progressDialog.dismiss();
                         Toast.makeText(FarmerDetailsActivity.this, "Order Placed Successfully", Toast.LENGTH_SHORT).show();
+
+                        //after placing order open order details page
+                        Intent intent = new Intent(FarmerDetailsActivity.this, OrderDetailsUserAcitivty.class);
+                        intent.putExtra("orderTo", farmerUid);
+                        intent.putExtra("orderId", timeStamp);
+                        startActivity(intent);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {

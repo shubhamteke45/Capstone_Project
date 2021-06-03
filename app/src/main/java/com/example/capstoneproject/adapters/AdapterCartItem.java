@@ -83,6 +83,8 @@ public class AdapterCartItem extends RecyclerView.Adapter<AdapterCartItem.Holder
                 ((FarmerDetailsActivity)context).sTotalTv.setText("₹"+String.format("%2f", sTotalPrice));
                 ((FarmerDetailsActivity)context).sTotalTv.setText("₹"+String.format("%2f", Double.parseDouble(String.format("%2f", totalPrice))));
 
+                //after removing item from cart, update cart count
+                ((FarmerDetailsActivity)context).cartCount();
             }
         });
     }

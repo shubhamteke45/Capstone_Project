@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.capstoneproject.FilterProductUser;
 import com.example.capstoneproject.R;
+import com.example.capstoneproject.activities.FarmerDetailsActivity;
 import com.example.capstoneproject.models.ModelProduct;
 import com.google.firebase.database.annotations.NotNull;
 import com.squareup.picasso.Picasso;
@@ -176,7 +177,7 @@ public class AdapterProductUser extends  RecyclerView.Adapter<AdapterProductUser
                 //add to db(SQLite)
                 addToCart(productId, title, priceEach, totalPrice, quantity);
                 dialog.dismiss();
-                //Toast.makeText(context, "product added", Toast.LENGTH_SHORT).show();
+
             }
         });
 
@@ -205,6 +206,9 @@ public class AdapterProductUser extends  RecyclerView.Adapter<AdapterProductUser
                 .doneDataAdding();
 
         Toast.makeText(context, "Added to Cart...", Toast.LENGTH_SHORT).show();
+
+        //update cart count
+        ((FarmerDetailsActivity)context).cartCount();
     }
 
 

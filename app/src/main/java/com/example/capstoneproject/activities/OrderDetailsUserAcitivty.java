@@ -94,7 +94,7 @@ public class OrderDetailsUserAcitivty extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
+                    public void onCancelled(@NonNull DatabaseError error){
 
                     }
                 });
@@ -134,7 +134,7 @@ public class OrderDetailsUserAcitivty extends AppCompatActivity {
                         //set data
                         orderIdTv.setText(orderId);
                         orderStatusTv.setText(orderStatus);
-                        amountTv.setText(""+orderCost+"[including delivery fee "+deliveryFee+"]");
+                        amountTv.setText("₹ "+orderCost+" [including delivery fee "+deliveryFee+"]");
                         dateTv.setText(formatedDate);
 
                         findAddress(latitude, longitude);
@@ -157,7 +157,6 @@ public class OrderDetailsUserAcitivty extends AppCompatActivity {
         
         try{
             addresses = geocoder.getFromLocation(lat,lon, 1);
-
             String address = addresses.get(0).getAddressLine(0);
             addressTv.setText(address);
         }
@@ -177,7 +176,6 @@ public class OrderDetailsUserAcitivty extends AppCompatActivity {
                     }
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-
                     }
                 });
     }

@@ -182,7 +182,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/passwordEt"
-        android:hint="Password"
+        android:hint="Confirm Password"
         android:padding="10dp"
         android:drawableStart="@drawable/ic_lock_gray"
         android:drawablePadding="5dp"

@@ -333,6 +333,7 @@ public class FarmerDetailsActivity extends AppCompatActivity {
         hashMap.put("orderTime", ""+timeStamp);
         hashMap.put("orderStatus", "In Progress");
         hashMap.put("orderCost", ""+cost);
+        hashMap.put("deliveryFee", ""+deliveryFee);
         hashMap.put("orderBy", ""+firebaseAuth.getUid());
         hashMap.put("orderTo", ""+farmerUid);
         hashMap.put("latitude", ""+myLatitude);

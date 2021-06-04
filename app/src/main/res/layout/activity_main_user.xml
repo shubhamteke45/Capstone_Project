@@ -76,7 +76,7 @@
             android:layout_height="40dp"
             android:background="@drawable/shape_rect03"
             android:orientation="horizontal"
-            android:padding="5dp">
+            android:layout_marginTop="5dp">
 
             <!--Products-->
             <TextView

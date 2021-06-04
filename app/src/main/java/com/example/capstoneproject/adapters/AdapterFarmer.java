@@ -72,10 +72,12 @@ public class AdapterFarmer extends RecyclerView.Adapter<AdapterFarmer.HolderFarm
 
         //check farmer is selling
         if(farmerSelling.equals("true")){
-            holder.notSelling.setVisibility(View.VISIBLE);
+            holder.selling.setVisibility(View.VISIBLE);
+            holder.notSelling.setVisibility(View.GONE);
         }
         else{
-            holder.notSelling.setVisibility(View.GONE);
+            holder.notSelling.setVisibility(View.VISIBLE);
+            holder.selling.setVisibility(View.GONE);
         }
 
         try{
@@ -107,7 +109,7 @@ public class AdapterFarmer extends RecyclerView.Adapter<AdapterFarmer.HolderFarm
         //ui views of row_shop.xml
 
         private ImageView farmerIv, onlineIv;
-        private TextView notSelling, farmerNameTv, phoneTv, addressTv;
+        private TextView notSelling, farmerNameTv, phoneTv, addressTv, selling;
         private RatingBar ratingBar;
 
         public HolderFarmer(@NotNull View itemView){
@@ -116,6 +118,7 @@ public class AdapterFarmer extends RecyclerView.Adapter<AdapterFarmer.HolderFarm
             //init uid views
             ratingBar = itemView.findViewById(R.id.ratingBar);
             notSelling = itemView.findViewById(R.id.notSelling);
+            selling = itemView.findViewById(R.id.selling);
             farmerNameTv = itemView.findViewById(R.id.farmerNameTv);
             phoneTv = itemView.findViewById(R.id.phoneTv);
             addressTv = itemView.findViewById(R.id.addressTv);

@@ -119,8 +119,11 @@ public class ProfileEditUserActivity extends AppCompatActivity implements Locati
         gpsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 //detect Current location
                 if (checkLocationPermission()) {
+                    progressDialog.setMessage("Please Wait...");
+                    progressDialog.show();
                     //already allowed
                     detectLocation();
                 } else {
@@ -447,6 +450,7 @@ public class ProfileEditUserActivity extends AppCompatActivity implements Locati
             stateEt.setText(state);
             cityEt.setText(city);
             addressEt.setText(address);
+            progressDialog.dismiss();
         }catch (Exception e){
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }

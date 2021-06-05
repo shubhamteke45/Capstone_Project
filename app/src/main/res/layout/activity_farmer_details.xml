@@ -71,6 +71,17 @@
                 android:textColor="@color/colorWhite"
                 android:layout_marginStart="3dp"/>
 
+            <RatingBar
+                android:id="@+id/ratingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/deliveryFeeTv"
+                android:layout_alignParentEnd="true"
+                android:numStars="5"
+                style="@style/Widget.AppCompat.RatingBar.Small"
+                android:progressBackgroundTint="@color/colorGray00"
+                android:progressTint="@color/colorWhite"/>
+
             <TextView
                 android:id="@+id/addressTv"
                 android:layout_width="wrap_content"
@@ -124,8 +135,7 @@
             android:layout_height="30dp"
             android:layout_alignParentEnd="true"
             android:background="@null"
-            android:layout_marginTop="8dp"
-            android:src="@drawable/ic_cart_gray"/>
+            android:src="@drawable/ic_cart_gray" />
 
         <ImageButton
             android:id="@+id/backBtn"
@@ -153,6 +163,15 @@
             android:layout_alignParentEnd="true"
             android:layout_width="20dp"
             android:layout_height="20dp"/>
+
+        <ImageButton
+            android:id="@+id/reviewsBtn"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_toStartOf="@id/cartBtn"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_star_white"
+            android:background="@android:color/transparent"/>
 
 
     </RelativeLayout>

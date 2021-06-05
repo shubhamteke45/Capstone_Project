@@ -20,6 +20,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,8 +29,10 @@ import com.example.capstoneproject.Constants;
 import com.example.capstoneproject.R;
 import com.example.capstoneproject.adapters.AdapterCartItem;
 import com.example.capstoneproject.adapters.AdapterProductUser;
+import com.example.capstoneproject.adapters.AdapterReview;
 import com.example.capstoneproject.models.ModelCartItem;
 import com.example.capstoneproject.models.ModelProduct;
+import com.example.capstoneproject.models.ModelReview;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -50,10 +53,11 @@ public class FarmerDetailsActivity extends AppCompatActivity {
 
     private ImageView farmerIv;
     private TextView farmerNameTv, phoneTv, emailTv, sellingTv, deliveryFeeTv, addressTv, filteredProductsTv, cartCountTv;
-    private ImageButton callBtn, mapBtn, cartBtn, backBtn, filterProductBtn;
+    private ImageButton callBtn, mapBtn, cartBtn, backBtn, filterProductBtn, reviewsBtn;
     private RelativeLayout toolbarRl, productsRl;
     private EditText searchProductEt;
     private RecyclerView productsRv;
+    private RatingBar ratingBar;
 
     //progress Dialog
     private ProgressDialog progressDialog;
@@ -93,6 +97,8 @@ public class FarmerDetailsActivity extends AppCompatActivity {
         productsRl = findViewById(R.id.productsRl);
         productsRv = findViewById(R.id.productsRv);
         cartCountTv = findViewById(R.id.cartCountTv);
+        reviewsBtn = findViewById(R.id.reviewsBtn);
+        ratingBar = findViewById(R.id.ratingBar);
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Please Wait");
@@ -103,6 +109,7 @@ public class FarmerDetailsActivity extends AppCompatActivity {
         loadMyInfo();
         loadFarmerDetails();
         loadFarmerProducts();
+        loadReviews();
 
         //declare it to class level and init onCreate
         easyDB = EasyDB.init(this, "ITEMS_DB")
@@ -194,6 +201,43 @@ public class FarmerDetailsActivity extends AppCompatActivity {
                         }).show();
             }
         });
+
+        //handle reviewsBtn click, open reviews activity
+        reviewsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(FarmerDetailsActivity.this, FarmerReviewsActivity.class);
+                intent.putExtra("farmerUid", farmerUid);
+                startActivity(intent);
+            }
+        });
+    }
+
+    private float ratingSum = 0;
+    private void loadReviews() {
+
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users");
+        ref.child(farmerUid).child("Ratings")
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        ratingSum=0;
+                        for(DataSnapshot ds:snapshot.getChildren()){
+                            float rating = Float.parseFloat(""+ds.child("ratings").getValue());
+                            ratingSum = ratingSum+rating;
+
+                        }
+
+                        long numberOfReviews = snapshot.getChildrenCount();
+                        float avgRating = ratingSum/numberOfReviews;
+                        ratingBar.setRating(avgRating);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
     }
 
     private void deleteCartData() {

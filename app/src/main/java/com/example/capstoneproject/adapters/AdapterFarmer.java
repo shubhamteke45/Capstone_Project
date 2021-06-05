@@ -15,6 +15,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.capstoneproject.R;
 import com.example.capstoneproject.activities.FarmerDetailsActivity;
 import com.example.capstoneproject.models.ModelFarmer;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.annotations.NotNull;
 import com.squareup.picasso.Picasso;
 
@@ -58,6 +63,8 @@ public class AdapterFarmer extends RecyclerView.Adapter<AdapterFarmer.HolderFarm
         String state = modelFarmer.getState();
         String profileImage = modelFarmer.getProfileImage();
 
+        loadReviews(modelFarmer, holder);
+
         //set data
         holder.farmerNameTv.setText(name);
         holder.addressTv.setText(address);
@@ -97,6 +104,36 @@ public class AdapterFarmer extends RecyclerView.Adapter<AdapterFarmer.HolderFarm
             }
         });
     }
+
+    private float ratingSum = 0;
+    private void loadReviews(ModelFarmer modelFarmer, HolderFarmer holder) {
+
+        String farmerUid = modelFarmer.getUid();
+
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users");
+        ref.child(farmerUid).child("Ratings")
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        ratingSum=0;
+                        for(DataSnapshot ds:snapshot.getChildren()){
+                            float rating = Float.parseFloat(""+ds.child("ratings").getValue());
+                            ratingSum = ratingSum+rating;
+
+                        }
+
+                        long numberOfReviews = snapshot.getChildrenCount();
+                        float avgRating = ratingSum/numberOfReviews;
+                        holder.ratingBar.setRating(avgRating);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+    }
+
 
     @Override
     public int getItemCount() {

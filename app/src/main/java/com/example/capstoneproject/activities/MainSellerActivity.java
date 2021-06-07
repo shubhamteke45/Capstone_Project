@@ -19,8 +19,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.capstoneproject.adapters.AdapterOrderFarmer;
 import com.example.capstoneproject.adapters.AdapterProductSeller;
 import com.example.capstoneproject.Constants;
+import com.example.capstoneproject.models.ModelOrderFarmer;
 import com.example.capstoneproject.models.ModelProduct;
 import com.example.capstoneproject.R;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -39,18 +41,21 @@ import java.util.HashMap;
 
 public class MainSellerActivity extends AppCompatActivity {
 
-    private TextView nameTv, satbaraNumberTv, emailTv, tapProductsTv, tapOrdersTv, tapGovtTv, tapPaymentTv, filteredProductsTv;
-    private ImageButton logoutBtn, editProfileBtn, addProductBtn, filterProductBtn;
+    private TextView nameTv, satbaraNumberTv, emailTv, tapProductsTv, tapOrdersTv, tapGovtTv, tapPaymentTv, filteredProductsTv, filteredOrdersTv;
+    private ImageButton logoutBtn, editProfileBtn, addProductBtn, filterProductBtn, filterOrderBtn;
     private ImageView profileIv;
     private EditText searchProductEt;
     private RelativeLayout productsRl, ordersRl, govtRl, paymentRl;
-    private RecyclerView productsRv;
+    private RecyclerView productsRv, orderRv;
 
     private ArrayList<ModelProduct> productList;
     private AdapterProductSeller adapterProductSeller;
 
     private FirebaseAuth firebaseAuth;
     private ProgressDialog progressDialog;
+
+    private ArrayList<ModelOrderFarmer> orderFarmerArrayList;
+    private AdapterOrderFarmer adapterOrderFarmer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +81,9 @@ public class MainSellerActivity extends AppCompatActivity {
         ordersRl = findViewById(R.id.ordersRl);
         govtRl = findViewById(R.id.govtRl);
         paymentRl = findViewById(R.id.paymentRl);
+        filteredOrdersTv = findViewById(R.id.filteredOrdersTv);
+        filterOrderBtn = findViewById(R.id.filterOrderBtn);
+        orderRv = findViewById(R.id.orderRv);
 
         firebaseAuth = FirebaseAuth.getInstance();
         progressDialog = new ProgressDialog(this);
@@ -84,6 +92,7 @@ public class MainSellerActivity extends AppCompatActivity {
         checkUser();
         loadAllProducts();
         showProductsUI();
+        loadAllOrders();
 
         //search
         searchProductEt.addTextChangedListener(new TextWatcher() {
@@ -186,6 +195,56 @@ public class MainSellerActivity extends AppCompatActivity {
                         }).show();
             }
         });
+
+        filterOrderBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String[] options = {"All", "In Progress", "Completed", "Cancelled"};
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainSellerActivity.this);
+                builder.setTitle("Filter Orders")
+                        .setItems(options, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                if(i==0){
+                                    filteredOrdersTv.setText("Showing All Orders");
+                                    adapterOrderFarmer.getFilter().filter("");
+                                }
+                                else{
+                                    String optionClicked = options[i];
+                                    filteredOrdersTv.setText("Showing "+optionClicked+" Orders");
+                                    adapterOrderFarmer.getFilter().filter(optionClicked);
+                                }
+                            }
+                        }).show();
+            }
+        });
+    }
+
+    private void loadAllOrders() {
+
+        orderFarmerArrayList = new ArrayList<>();
+
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users");
+        ref.child(firebaseAuth.getUid()).child("Orders")
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        orderFarmerArrayList.clear();
+                        for(DataSnapshot ds:snapshot.getChildren()){
+                            ModelOrderFarmer modelOrderFarmer = ds.getValue(ModelOrderFarmer.class);
+                            orderFarmerArrayList.add(modelOrderFarmer);
+                        }
+
+                        adapterOrderFarmer = new AdapterOrderFarmer(MainSellerActivity.this, orderFarmerArrayList);
+                        orderRv.setAdapter(adapterOrderFarmer);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
     }
 
     private void loadFilteredProducts(String selected) {

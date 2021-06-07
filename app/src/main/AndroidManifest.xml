@@ -17,7 +17,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
-        <activity android:name=".activities.OrderDetailsSellerActivity"></activity>
+        <activity android:name=".activities.SettingsActivity"></activity>
+        <activity android:name=".activities.OrderDetailsSellerActivity" />
         <activity android:name=".activities.FarmerReviewsActivity" />
         <activity android:name=".activities.WriteReviewActivity" />
         <activity android:name=".activities.OrderDetailsUserAcitivty" />

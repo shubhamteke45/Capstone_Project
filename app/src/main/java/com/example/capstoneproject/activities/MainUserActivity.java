@@ -36,7 +36,7 @@ import java.util.HashMap;
 public class MainUserActivity extends AppCompatActivity {
 
     private TextView nameTv, emailTv, phoneTv, tapFarmersTv, tapOrdersTv;
-    private ImageButton logoutBtn, editProfileBtn;
+    private ImageButton logoutBtn, editProfileBtn, settingsBtn;
     private ImageView profileIv;
     private RelativeLayout farmerRl,  ordersRl;
     private RecyclerView farmersRv, orderRv;
@@ -65,6 +65,7 @@ public class MainUserActivity extends AppCompatActivity {
         ordersRl = findViewById(R.id.ordersRl);
         farmersRv = findViewById(R.id.farmersRv);
         orderRv = findViewById(R.id.orderRv);
+        settingsBtn = findViewById(R.id.settingsBtn);
 
         firebaseAuth = FirebaseAuth.getInstance();
         progressDialog = new ProgressDialog(this);
@@ -105,6 +106,13 @@ public class MainUserActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 showOrdersUI();
+            }
+        });
+
+        settingsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainUserActivity.this, SettingsActivity.class));
             }
         });
     }

@@ -30,6 +30,14 @@
             android:background="@null"
             android:src="@drawable/ic_person_white" />
 
+        <ImageButton
+            android:id="@+id/settingsBtn"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_toStartOf="@id/editProfileBtn"
+            android:src="@drawable/ic_settings_white"
+            android:background="@null"/>
+
 
         <com.blogspot.atifsoftwares.circularimageview.CircularImageView
             android:layout_width="70dp"

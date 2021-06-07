@@ -1,6 +1,7 @@
 package com.example.capstoneproject.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.capstoneproject.FilterOrderFarmer;
 import com.example.capstoneproject.R;
+import com.example.capstoneproject.activities.OrderDetailsSellerActivity;
 import com.example.capstoneproject.models.ModelOrderFarmer;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -79,7 +81,10 @@ public class AdapterOrderFarmer extends RecyclerView.Adapter<AdapterOrderFarmer.
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Intent intent = new Intent(context, OrderDetailsSellerActivity.class);
+                intent.putExtra("orderId", orderId);
+                intent.putExtra("orderBy", orderBy);
+                context.startActivity(intent);
             }
         });
     }

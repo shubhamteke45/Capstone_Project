@@ -131,7 +131,7 @@ public class OrderDetailsUserAcitivty extends AppCompatActivity {
                         //convert timestamp to proper format
                         Calendar calendar = Calendar.getInstance();
                         calendar.setTimeInMillis(Long.parseLong(orderTime));
-                        String formatedDate = DateFormat.format("dd/MM/yyyy hh.mm a", calendar).toString();
+                        String formatedDate = DateFormat.format("dd/MM/yyyy", calendar).toString();
 
                         if (orderStatus.equals("In Progress")) {
                             orderStatusTv.setTextColor(getResources().getColor(R.color.colorYellow));

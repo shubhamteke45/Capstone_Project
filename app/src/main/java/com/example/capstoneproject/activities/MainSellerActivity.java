@@ -42,7 +42,7 @@ import java.util.HashMap;
 public class MainSellerActivity extends AppCompatActivity {
 
     private TextView nameTv, satbaraNumberTv, emailTv, tapProductsTv, tapOrdersTv, tapGovtTv, tapPaymentTv, filteredProductsTv, filteredOrdersTv;
-    private ImageButton logoutBtn, editProfileBtn, addProductBtn, filterProductBtn, filterOrderBtn;
+    private ImageButton logoutBtn, editProfileBtn, addProductBtn, filterProductBtn, filterOrderBtn, reviewsBtn;
     private ImageView profileIv;
     private EditText searchProductEt;
     private RelativeLayout productsRl, ordersRl, govtRl, paymentRl;
@@ -84,6 +84,7 @@ public class MainSellerActivity extends AppCompatActivity {
         filteredOrdersTv = findViewById(R.id.filteredOrdersTv);
         filterOrderBtn = findViewById(R.id.filterOrderBtn);
         orderRv = findViewById(R.id.orderRv);
+        reviewsBtn = findViewById(R.id.reviewsBtn);
 
         firebaseAuth = FirebaseAuth.getInstance();
         progressDialog = new ProgressDialog(this);
@@ -217,6 +218,15 @@ public class MainSellerActivity extends AppCompatActivity {
                                 }
                             }
                         }).show();
+            }
+        });
+
+        reviewsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainSellerActivity.this, FarmerReviewsActivity.class);
+                intent.putExtra("farmerUid",""+firebaseAuth.getUid());
+                startActivity(intent);
             }
         });
     }

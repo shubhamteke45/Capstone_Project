@@ -40,6 +40,15 @@
             android:src="@drawable/ic_add_shopping_white"
             android:background="@null"/>
 
+        <!---Shop reviews-->
+        <ImageButton
+            android:id="@+id/reviewsBtn"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_toStartOf="@id/addProductBtn"
+            android:src="@drawable/ic_star_white"
+            android:background="@null"/>
+
         <com.blogspot.atifsoftwares.circularimageview.CircularImageView
             android:layout_width="70dp"
             android:layout_height="70dp"

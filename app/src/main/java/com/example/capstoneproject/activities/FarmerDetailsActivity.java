@@ -25,6 +25,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.capstoneproject.Constants;
 import com.example.capstoneproject.R;
 import com.example.capstoneproject.adapters.AdapterCartItem;
@@ -43,8 +48,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import p32929.androideasysql_library.Column;
 import p32929.androideasysql_library.EasyDB;
@@ -410,11 +419,9 @@ public class FarmerDetailsActivity extends AppCompatActivity {
                         progressDialog.dismiss();
                         Toast.makeText(FarmerDetailsActivity.this, "Order Placed Successfully", Toast.LENGTH_SHORT).show();
 
-                        //after placing order open order details page
-                        Intent intent = new Intent(FarmerDetailsActivity.this, OrderDetailsUserAcitivty.class);
-                        intent.putExtra("orderTo", farmerUid);
-                        intent.putExtra("orderId", timeStamp);
-                        startActivity(intent);
+                        prepareNotificationMessage(timeStamp);
+
+
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -528,7 +535,74 @@ public class FarmerDetailsActivity extends AppCompatActivity {
                 });
     }
 
+    private void prepareNotificationMessage(String orderId){
+        //when user places order, send notification to seller
 
+        //prepare data for notification
+        String NOTIFICATION_TOPIC = "/topic/"+Constants.FCM_TOPIC;
+        String NOTIFICATION_TITLE = "New Order "+orderId;
+        String NOTIFICATION_MESSAGE = "Congratulations, you have new order.";
+        String NOTIFICATION_TYPE = "NewOrder";
 
+        JSONObject notificationJo = new JSONObject();
+        JSONObject notificationBodyJo = new JSONObject();
+
+        try{
+            //what to send
+            notificationBodyJo.put("notificationType", NOTIFICATION_TYPE);
+            notificationBodyJo.put("buyerUid", firebaseAuth.getUid());
+            notificationBodyJo.put("sellerUid", farmerUid);
+            notificationBodyJo.put("orderId", orderId);
+            notificationBodyJo.put("notificationTitle", NOTIFICATION_TITLE);
+            notificationBodyJo.put("notificationMessage", NOTIFICATION_MESSAGE);
+
+            //where to send
+            notificationJo.put("to", NOTIFICATION_TOPIC);
+            notificationJo.put("data", notificationBodyJo);
+
+        } catch (JSONException e) {
+            Toast.makeText(this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+
+        sendFcmNotification(notificationJo, orderId);
+    }
+
+    private void sendFcmNotification(JSONObject notificationJo, String orderId) {
+        //send volley request
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest("https://fcm.googlepis.com/fcm/send", notificationJo, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                //after sending fcm start order details activity
+                //after placing order open order details page
+                Intent intent = new Intent(FarmerDetailsActivity.this, OrderDetailsUserAcitivty.class);
+                intent.putExtra("orderTo", farmerUid);
+                intent.putExtra("orderId", orderId);
+                startActivity(intent);
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //if failed sending fcm, still start order details activity
+                Intent intent = new Intent(FarmerDetailsActivity.this, OrderDetailsUserAcitivty.class);
+                intent.putExtra("orderTo", farmerUid);
+                intent.putExtra("orderId", orderId);
+                startActivity(intent);
+            }
+        }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+
+                //put required headers
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "key=" + Constants.FCM_KEY);
+                return headers;
+            }
+        };
+
+        //enqueue the volley request
+        Volley.newRequestQueue(this).add(jsonObjectRequest);
+    }
 
 }

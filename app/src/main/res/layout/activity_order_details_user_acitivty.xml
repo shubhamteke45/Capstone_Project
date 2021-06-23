@@ -209,5 +209,5 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:listitem="@layout/row_ordereditem"/>
+        tools:listitem="@layout/row_ordereditem" />
 </LinearLayout>

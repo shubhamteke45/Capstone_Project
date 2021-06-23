@@ -228,20 +228,20 @@ public class MainUserActivity extends AppCompatActivity {
                 orderList.clear();
                 for(DataSnapshot ds:snapshot.getChildren()){
                     String uid = ""+ds.getRef().getKey();
-
                     DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users").child(uid).child("Orders");
                     ref.orderByChild("orderBy").equalTo(firebaseAuth.getUid())
                             .addValueEventListener(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot snapshot) {
+
                                     if(snapshot.exists()){
+                                        orderList.clear();
                                         for(DataSnapshot ds:snapshot.getChildren()){
                                             ModelOrderUser modelOrderUser = ds.getValue(ModelOrderUser.class);
                                             orderList.add(modelOrderUser);
                                         }
                                         //set up adapter
                                         adapterOrderUser = new AdapterOrderUser(MainUserActivity.this, orderList);
-
                                         //set to recyclerview
                                         orderRv.setAdapter(adapterOrderUser);
                                     }

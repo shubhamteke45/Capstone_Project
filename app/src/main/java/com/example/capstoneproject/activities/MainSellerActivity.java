@@ -41,7 +41,8 @@ import java.util.HashMap;
 
 public class MainSellerActivity extends AppCompatActivity {
 
-    private TextView nameTv, satbaraNumberTv, emailTv, tapProductsTv, tapOrdersTv, tapGovtTv, tapPaymentTv, filteredProductsTv, filteredOrdersTv;
+    private TextView nameTv, satbaraNumberTv, emailTv, tapProductsTv, tapOrdersTv, filteredProductsTv, filteredOrdersTv;
+    private TextView tapGovtTv, tapPaymentTv;
     private ImageButton logoutBtn, editProfileBtn, addProductBtn, filterProductBtn, filterOrderBtn, reviewsBtn, settingsBtn;
     private ImageView profileIv;
     private EditText searchProductEt;

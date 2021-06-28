@@ -7,29 +7,33 @@ public class Constants {
 
     // product categories
     public static final String[] productCategories = {
-            "Tomato",
             "Potato",
+            "Tomato",
+            "Onion",
+            "Ginger",
+            "Cucumber",
+            "Drumstick",
+            "Green Chilies",
+            "Garlic",
+            "Bitter Melon",
             "Carrot",
-            "cauliflower",
-            "eggplant",
-            "green pepper",
-            "onion",
-            "red pepper",
-            "peas",
+            "Cabbage",
             "Others"
     };
 
     public static final String[] productCategories1 = {
             "All",
-            "Tomato",
             "Potato",
+            "Tomato",
+            "Onion",
+            "Ginger",
+            "Cucumber",
+            "Drumstick",
+            "Green Chilies",
+            "Garlic",
+            "Bitter Melon",
             "Carrot",
-            "cauliflower",
-            "eggplant",
-            "green pepper",
-            "onion",
-            "red pepper",
-            "peas",
+            "Cabbage",
             "Others"
     };
 }
